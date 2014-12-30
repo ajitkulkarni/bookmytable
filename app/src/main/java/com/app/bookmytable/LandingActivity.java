@@ -1,39 +1,57 @@
 package com.app.bookmytable;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
+import android.view.Window;
+
+import com.app.bookmytable.landing.LandingFragmentPageAdapter;
 
 
-public class LandingActivity extends ActionBarActivity {
-
+public class LandingActivity extends FragmentActivity implements ActionBar.TabListener{
+    ActionBar actionbar;
+    ViewPager viewpager;
+    LandingFragmentPageAdapter ft;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_landing);
+        viewpager = (ViewPager) findViewById(R.id.pager);
+        ft = new LandingFragmentPageAdapter(getSupportFragmentManager());
+        actionbar = getActionBar();
+        viewpager.setAdapter(ft);
+        actionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        actionbar.addTab(actionbar.newTab().setText("Featured").setTabListener(this));
+        actionbar.addTab(actionbar.newTab().setText("Search").setTabListener(this));
+        viewpager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageSelected(int arg0) {
+                actionbar.setSelectedNavigationItem(arg0);
+            }
+            @Override
+            public void onPageScrolled(int arg0, float arg1, int arg2) {
+                // TODO Auto-generated method stub
+            }
+            @Override
+            public void onPageScrollStateChanged(int arg0) {
+                // TODO Auto-generated method stub
+            }
+        });
     }
-
-
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_landing, menu);
-        return true;
+    public void onTabReselected(Tab tab, FragmentTransaction ft) {
+        // TODO Auto-generated method stub
     }
-
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    public void onTabSelected(Tab tab, FragmentTransaction ft) {
+        viewpager.setCurrentItem(tab.getPosition());
+    }
+    @Override
+    public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+        // TODO Auto-generated method stub
     }
 }

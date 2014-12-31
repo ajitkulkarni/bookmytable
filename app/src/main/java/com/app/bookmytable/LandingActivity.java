@@ -1,57 +1,110 @@
 package com.app.bookmytable;
 
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
-import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
-import android.view.Window;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
-import com.app.bookmytable.landing.LandingFragmentPageAdapter;
+import com.android.volley.Cache;
+import com.android.volley.Network;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.app.bookmytable.model.Restaurant;
+
+import org.json.JSONArray;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
-public class LandingActivity extends FragmentActivity implements ActionBar.TabListener{
-    ActionBar actionbar;
-    ViewPager viewpager;
-    LandingFragmentPageAdapter ft;
+public class LandingActivity extends ActionBarActivity {
+
+    ListView listView;
+    Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
-        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_landing);
-        viewpager = (ViewPager) findViewById(R.id.pager);
-        ft = new LandingFragmentPageAdapter(getSupportFragmentManager());
-        actionbar = getActionBar();
-        viewpager.setAdapter(ft);
-        actionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        actionbar.addTab(actionbar.newTab().setText("Featured").setTabListener(this));
-        actionbar.addTab(actionbar.newTab().setText("Search").setTabListener(this));
-        viewpager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+        // Get ListView object from xml
+        listView = (ListView) findViewById(R.id.restroList);
+
+        context = this;
+        String url = "http://10.0.2.2:8080/restrobooking/resources/restaurant/find-all";
+
+        RequestQueue mRequestQueue;
+
+        Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
+
+        // Formulate the request and handle the response.
+        // Set up the network to use HttpURLConnection as the HTTP client.
+        Network network = new BasicNetwork(new HurlStack());
+
+        // Instantiate the RequestQueue with the cache and network.
+        mRequestQueue = new RequestQueue(cache, network);
+
+        // Start the queue
+        mRequestQueue.start();
+
+        JsonArrayRequest jsObjRequest = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
             @Override
-            public void onPageSelected(int arg0) {
-                actionbar.setSelectedNavigationItem(arg0);
+            public void onResponse(JSONArray response) {
+                Log.i("Success", response.toString());
+                List<Restaurant> restaurants = Restaurant.fromJson(response);
+                if (restaurants != null) {
+                    List<String> restoNames = new ArrayList<>();
+                    for (Restaurant restaurant : restaurants) {
+                        restoNames.add(restaurant.getName());
+                    }
+
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(LandingActivity.this,
+                            android.R.layout.simple_list_item_1, android.R.id.text1, restoNames);
+
+                    // Assign adapter to ListView
+                    listView.setAdapter(adapter);
+                }
             }
+        }, new Response.ErrorListener() {
+
             @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-                // TODO Auto-generated method stub
-            }
-            @Override
-            public void onPageScrollStateChanged(int arg0) {
-                // TODO Auto-generated method stub
+            public void onErrorResponse(VolleyError error) {
+                Log.i("Error", error.getMessage());
+
             }
         });
+
+        // Add the request to the RequestQueue.
+        mRequestQueue.add(jsObjRequest);
+
+
+
+        // ListView Item Click Listener
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                // ListView Clicked item value
+                String  itemValue = (String) listView.getItemAtPosition(position);
+
+                Intent intent = new Intent(LandingActivity.this, RestroDetailActivity.class);
+                intent.putExtra("HotelId", itemValue);
+                startActivity(intent);
+            }
+
+        });
     }
-    @Override
-    public void onTabReselected(Tab tab, FragmentTransaction ft) {
-        // TODO Auto-generated method stub
-    }
-    @Override
-    public void onTabSelected(Tab tab, FragmentTransaction ft) {
-        viewpager.setCurrentItem(tab.getPosition());
-    }
-    @Override
-    public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-        // TODO Auto-generated method stub
-    }
+
 }

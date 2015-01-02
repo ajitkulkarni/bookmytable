@@ -8,5 +8,10 @@
     <string name="title_activity_restro_detail">RestroDetailActivity</string>
     <string name="title_activity_restro_booking">RestroBookingActivity</string>
     <string name="title_activity_booking_result">BookingResultActivity</string>
+    <string name="Username">User Name:</string>
+    <string name="Email">Email:</string>
+    <string name="NumberOfSeats">Number Of Seats:</string>
+
+
 
 </resources>

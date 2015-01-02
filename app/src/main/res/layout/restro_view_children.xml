@@ -8,21 +8,24 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:text="restro name"
+    android:textSize="20dp"
     />
   <TextView
     android:id="@+id/restro_address"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_toRightOf="@id/restro_name"
+    android:layout_below="@id/restro_name"
     android:text="title text"
+      android:textSize="14dp"
     />
   <TextView
     android:id="@+id/restro_capacity"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_toRightOf="@id/restro_address"
-    android:layout_below="@id/restro_name"
+      android:layout_alignParentRight="true"
+      android:layout_below="@id/restro_name"
     android:layout_marginTop="5dp"
+      android:textSize="14dp"
     android:text="description text"
     />
 
